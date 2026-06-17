@@ -13,6 +13,8 @@
   --text: #ffffff;
   --muted: #a1a1aa;
   --line: #27272A;
+  --ring-line: #323233;
+
   --accent: #27272A;
   --accent-strong: #ffffff;
   --accent-text: #09090B;
@@ -21,15 +23,16 @@
 
 :root[data-theme='light'] {
   color-scheme: light;
-  --bg: #FFFFFF;
-  --app: #FFFFFF;
-  --surface: #F7F7F7;
-  --surface-soft: #EAEAEA;
-  --text: #222222;
-  --muted: #666666;
-  --line: #E5E5E5;
-  --accent: #EAEAEA;
-  --accent-strong: #222222;
+    --bg: #FAFAFB;
+  --app: #FAFAFB;
+  --surface: #F3F4F6;
+  --surface-soft: #E5E7EB;
+  --text: #111827;
+  --muted: #6B7280;
+  --line: #E5E7EB;
+  --ring-line: #d8d8d8;
+  --accent: #E5E7EB;
+  --accent-strong: #111827;
   --accent-text: #ffffff;
   --shadow: none;
 }
@@ -129,6 +132,7 @@ button {
 .timer-shell {
   display: flex;
   justify-content: center;
+  align-items: flex-start;
   width: 100%;
   max-width: 600px;
   flex: 1;
@@ -288,7 +292,7 @@ button {
 }
 
 .ring-track {
-  stroke: var(--line);
+  stroke: var(--ring-line);
 }
 
 .ring-progress {
