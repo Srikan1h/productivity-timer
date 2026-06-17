@@ -2,41 +2,62 @@
   color-scheme: dark;
   font-family:
     "Inter", system-ui, -apple-system, sans-serif;
+
   background: #09090B;
   color: #ffffff;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  --bg: #09090B;
-  --app: #09090B;
-  --surface: #18181B;
-  --surface-soft: #27272A;
-  --text: #ffffff;
-  --muted: #a1a1aa;
-  --line: #27272A;
-  --ring-line: #323233;
 
+  /* Background hierarchy */
+  --bg: #09090B;           /* Page background */
+  --app: #09090B;
+
+  /* Containers */
+  --surface: #18181B;      /* Timer card */
+  --surface-soft: #27272A; /* Buttons, tabs */
+  --surface-hover: #3F3F46;/* Hover and active states */
+
+  /* Text */
+  --text: #FAFAFA;
+  --muted: #A1A1AA;
+
+  /* Borders */
+  --line: #3F3F46;
+  --ring-line: #4B4B50;
+
+  /* Accent */
   --accent: #27272A;
-  --accent-strong: #ffffff;
+  --accent-strong: #FFFFFF;
   --accent-text: #09090B;
+
+  /* Effects */
   --shadow: none;
 }
-
 :root[data-theme='light'] {
   color-scheme: light;
-    --bg: #FAFAFB;
-  --app: #FAFAFB;
-  --surface: #F3F4F6;
-  --surface-soft: #E5E7EB;
-  --text: #111827;
-  --muted: #6B7280;
-  --line: #E5E7EB;
-  --ring-line: #d8d8d8;
-  --accent: #E5E7EB;
-  --accent-strong: #111827;
-  --accent-text: #ffffff;
+
+  /* Background hierarchy */
+  --bg: #FFFFFF;           /* Page background */
+  --app: #FFFFFF;
+
+  --surface: #F8F8F8;      /* Timer container */
+  --surface-soft: #F1F1F1; /* Buttons and tabs */
+  --surface-hover: #E4E4E7;/* Hover and active */
+
+  /* Text */
+  --text: #18181B;
+  --muted: #71717A;
+
+  /* Borders */
+  --line: #E4E4E7;
+  --ring-line: #D4D4D8;
+
+  /* Accent */
+  --accent: #F1F1F1;
+  --accent-strong: #18181B;
+  --accent-text: #FFFFFF;
+
+  /* Effects */
   --shadow: none;
 }
-
 * {
   box-sizing: border-box;
 }
