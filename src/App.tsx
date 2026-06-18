@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, ReactNode } from 'react'
 import {
   Check,
   Moon,
@@ -15,7 +15,12 @@ import TaskManagement from './components/TaskManagement'
 const FOCUS_SECONDS = 30 * 60
 const BREAK_SECONDS = 10 * 60
 
-function TimeDisplay({ totalMs, isPomodoro }) {
+interface TimeDisplayProps {
+  totalMs: number
+  isPomodoro?: boolean
+}
+
+function TimeDisplay({ totalMs, isPomodoro }: TimeDisplayProps) {
   const totalSeconds = Math.floor(totalMs / 1000)
   const hours = Math.floor(totalSeconds / 3600)
   const minutes = Math.floor((totalSeconds % 3600) / 60)
@@ -56,7 +61,12 @@ function TimeDisplay({ totalMs, isPomodoro }) {
   )
 }
 
-function NavButton({ active, children, ...props }) {
+interface NavButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  active?: boolean
+  children: ReactNode
+}
+
+function NavButton({ active, children, ...props }: NavButtonProps) {
   return (
     <button className={active ? 'nav-button active' : 'nav-button'} type="button" {...props}>
       {children}
@@ -64,7 +74,13 @@ function NavButton({ active, children, ...props }) {
   )
 }
 
-function ControlButton({ children, label, icon, ...props }) {
+interface ControlButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  children: ReactNode
+  label: string
+  icon: ReactNode
+}
+
+function ControlButton({ children, label, icon, ...props }: ControlButtonProps) {
   return (
     <button
       className="control-button"
@@ -80,15 +96,15 @@ function ControlButton({ children, label, icon, ...props }) {
 }
 
 function App() {
-  const [view, setView] = useState('pomodoro')
-  const [theme, setTheme] = useState('dark')
+  const [view, setView] = useState<'pomodoro' | 'stopwatch'>('pomodoro')
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark')
   const [stopwatchMs, setStopwatchMs] = useState(0)
   const [stopwatchRunning, setStopwatchRunning] = useState(false)
-  const [pomodoroMode, setPomodoroMode] = useState('focus')
+  const [pomodoroMode, setPomodoroMode] = useState<'focus' | 'break'>('focus')
   const [pomodoroSeconds, setPomodoroSeconds] = useState(FOCUS_SECONDS)
   const [pomodoroRunning, setPomodoroRunning] = useState(false)
-  const modeRef = useRef(pomodoroMode)
-  const audioContextRef = useRef(null)
+  const modeRef = useRef<'focus' | 'break'>(pomodoroMode)
+  const audioContextRef = useRef<AudioContext | null>(null)
 
   const pomodoroLabel = pomodoroMode === 'focus' ? 'Focus' : 'Break'
   const pomodoroTotal = pomodoroMode === 'focus' ? FOCUS_SECONDS : BREAK_SECONDS
@@ -105,13 +121,13 @@ function App() {
   const stopwatchSeconds = Math.floor(stopwatchMs / 1000)
 
   const title = useMemo(() => {
-    const formatPomo = (secs) => {
+    const formatPomo = (secs: number) => {
       const m = Math.floor(secs / 60)
       const s = secs % 60
       return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
     }
     
-    const formatStop = (secs) => {
+    const formatStop = (secs: number) => {
       const h = Math.floor(secs / 3600)
       const m = Math.floor((secs % 3600) / 60)
       const s = secs % 60
@@ -142,7 +158,7 @@ function App() {
   }, [title])
 
   useEffect(() => {
-    let intervalId
+    let intervalId: number | undefined
     let lastTime = Date.now()
 
     if (stopwatchRunning) {
@@ -219,7 +235,7 @@ function App() {
   }, [])
 
   useEffect(() => {
-    let intervalId
+    let intervalId: number | undefined
 
     if (pomodoroRunning) {
       intervalId = window.setInterval(() => {
@@ -242,7 +258,7 @@ function App() {
     return () => window.clearInterval(intervalId)
   }, [pomodoroRunning])
 
-  const switchPomodoroMode = (nextMode) => {
+  const switchPomodoroMode = (nextMode: 'focus' | 'break') => {
     unlockAudio()
     setPomodoroMode(nextMode)
     modeRef.current = nextMode
