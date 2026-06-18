@@ -53,10 +53,22 @@ function TaskMenu({ onClearAll, onClearCompleted }: { onClearAll: () => void, on
   );
 }
 
-const initialTasks: Task[] = [];
-
 export default function TaskManagement() {
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
+  const [tasks, setTasks] = useState<Task[]>(() => {
+    const saved = localStorage.getItem('kanth_tasks');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error('Failed to load tasks from local storage');
+      }
+    }
+    return [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('kanth_tasks', JSON.stringify(tasks));
+  }, [tasks]);
 
   const addTask = (title: string, priority: Priority, estimatedPomodoros: number) => {
     const newTask: Task = {

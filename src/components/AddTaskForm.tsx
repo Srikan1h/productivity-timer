@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import { Priority } from '../types';
 
 interface Props {
@@ -54,6 +54,10 @@ export default function AddTaskForm({ onAdd }: Props) {
               value={pomodoros} 
               onChange={(e) => setPomodoros(parseInt(e.target.value) || 1)}
             />
+            <div className="pomodoro-spin-controls">
+              <button type="button" onClick={() => setPomodoros(Math.min(10, pomodoros + 1))} className="pomodoro-spin-btn" aria-label="Increase pomodoros"><ChevronUp size={12} strokeWidth={3} /></button>
+              <button type="button" onClick={() => setPomodoros(Math.max(1, pomodoros - 1))} className="pomodoro-spin-btn" aria-label="Decrease pomodoros"><ChevronDown size={12} strokeWidth={3} /></button>
+            </div>
           </div>
         </div>
         <button 

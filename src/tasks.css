@@ -168,7 +168,7 @@
   gap: 8px;
   background: var(--surface);
   border-radius: 8px;
-  padding: 8px 12px;
+  padding: 2px 12px;
   border: 1px solid var(--line);
   transition: border-color 0.2s ease;
 }
@@ -478,4 +478,30 @@
 }
 .task-edit-btn.cancel:hover {
   border-color: var(--muted);
+}
+
+.pomodoro-spin-controls {
+  display: flex;
+  flex-direction: column;
+  margin-left: -4px;
+}
+.pomodoro-spin-btn {
+  background: transparent;
+  color: var(--muted);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px 2px;
+  border-radius: 2px;
+  transition: all 0.2s ease;
+}
+.pomodoro-spin-btn:hover {
+  color: var(--text);
+  background: var(--surface-hover);
+}
+.pomodoro-spin-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
 }

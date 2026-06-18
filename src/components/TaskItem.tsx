@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Task } from '../types';
-import { Edit2, Trash2, Check, X } from 'lucide-react';
+import { Edit2, Trash2, Check, X, ChevronUp, ChevronDown } from 'lucide-react';
 
 interface Props {
   task: Task;
@@ -49,6 +49,10 @@ export default function TaskItem({ task, onToggle, onEdit, onDelete }: Props) {
               value={editPomodoros} 
               onChange={(e) => setEditPomodoros(parseInt(e.target.value) || 1)}
             />
+            <div className="pomodoro-spin-controls">
+              <button type="button" onClick={() => setEditPomodoros(Math.min(10, editPomodoros + 1))} className="pomodoro-spin-btn" aria-label="Increase pomodoros"><ChevronUp size={12} strokeWidth={3} /></button>
+              <button type="button" onClick={() => setEditPomodoros(Math.max(Math.max(1, task.completedPomodoros), editPomodoros - 1))} className="pomodoro-spin-btn" aria-label="Decrease pomodoros"><ChevronDown size={12} strokeWidth={3} /></button>
+            </div>
           </div>
         </div>
         <div className="task-edit-buttons">
