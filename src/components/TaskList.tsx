@@ -10,7 +10,7 @@ interface Props {
 
 export default function TaskList({ tasks, onToggle, onEdit, onDelete }: Props) {
   return (
-    <div className="flex flex-col gap-3">
+    <div className="task-list">
       {tasks.map(task => (
         <TaskItem 
           key={task.id} 

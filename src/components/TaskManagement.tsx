@@ -22,29 +22,29 @@ function TaskMenu({ onClearAll, onClearCompleted }: { onClearAll: () => void, on
   }, [isOpen]);
 
   return (
-    <div className="relative" ref={menuRef}>
+    <div className="task-menu" ref={menuRef}>
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="p-1.5 rounded-lg text-[var(--muted)] hover:bg-[var(--surface-soft)] hover:text-[var(--text)] transition-colors"
+        className="task-menu-btn"
         aria-label="Task options"
       >
         <MoreVertical size={20} />
       </button>
       
       {isOpen && (
-        <div className="absolute right-0 mt-1 w-52 rounded-xl border border-[var(--line)] bg-[var(--surface-soft)] shadow-lg overflow-hidden z-10 py-1">
+        <div className="task-menu-dropdown">
           <button 
             onClick={() => { onClearCompleted(); setIsOpen(false); }}
-            className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-[var(--text)] hover:bg-[var(--surface-hover)] transition-colors text-left"
+            className="task-menu-item"
           >
-            <CheckCircle size={16} className="text-[var(--muted)]" />
+            <CheckCircle size={16} className="icon" />
             Delete finished tasks
           </button>
           <button 
             onClick={() => { onClearAll(); setIsOpen(false); }}
-            className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-red-500 hover:bg-[var(--surface-hover)] transition-colors text-left"
+            className="task-menu-item danger"
           >
-            <Trash2 size={16} />
+            <Trash2 size={16} className="icon" />
             Clear all tasks
           </button>
         </div>
@@ -98,18 +98,18 @@ export default function TaskManagement() {
   const completedTasks = tasks.filter(t => t.completed);
 
   return (
-    <div className="w-full max-w-xl mx-auto flex flex-col gap-6 w-full text-[var(--text)] mt-4 mb-8 px-4 sm:px-0">
-      <div className="flex flex-col gap-3">
-        <div className="flex items-center justify-between px-2">
-          <h2 className="text-2xl font-bold">Tasks</h2>
+    <div className="task-management">
+      <div className="task-header">
+        <div className="task-header-top">
+          <h2 className="task-header-title">Tasks</h2>
           <TaskMenu onClearAll={clearAllTasks} onClearCompleted={clearCompletedTasks} />
         </div>
         <AddTaskForm onAdd={addTask} />
       </div>
 
       {activeTasks.length > 0 && (
-        <div className="flex flex-col gap-3 mt-4">
-          <h3 className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wider px-2">Active Tasks</h3>
+        <div className="task-section">
+          <h3 className="task-section-title">Active Tasks</h3>
           <TaskList tasks={activeTasks} onToggle={toggleTaskCompleted} onEdit={editTask} onDelete={deleteTask} />
         </div>
       )}
