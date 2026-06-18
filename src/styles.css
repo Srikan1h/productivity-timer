@@ -190,7 +190,7 @@ button {
 .phase-tabs button {
   min-width: 96px;
   min-height: 36px;
-  border-radius: 8px;
+  border-radius: 9px;
   background: transparent;
   color: var(--text);
   cursor: pointer;
@@ -247,7 +247,7 @@ button {
   height: 4px;
   overflow: hidden;
   border-radius: 8px;
-  background: var(--surface-soft);
+  background: var(--line);
 }
 
 .progress-line::before {

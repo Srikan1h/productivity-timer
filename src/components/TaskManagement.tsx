@@ -4,32 +4,7 @@ import TaskList from './TaskList';
 import AddTaskForm from './AddTaskForm';
 import CompletedTasksSection from './CompletedTasksSection';
 
-const initialTasks: Task[] = [
-  {
-    id: "1",
-    title: "Finish Assignment",
-    priority: "high",
-    estimatedPomodoros: 3,
-    completedPomodoros: 1,
-    completed: false
-  },
-  {
-    id: "2",
-    title: "Read Chapter 4",
-    priority: "medium",
-    estimatedPomodoros: 1,
-    completedPomodoros: 0,
-    completed: false
-  },
-  {
-    id: "3",
-    title: "Workout",
-    priority: "low",
-    estimatedPomodoros: 1,
-    completedPomodoros: 1,
-    completed: true
-  }
-];
+const initialTasks: Task[] = [];
 
 export default function TaskManagement() {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
@@ -50,6 +25,14 @@ export default function TaskManagement() {
     setTasks(tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
   };
 
+  const editTask = (id: string, updates: Partial<Task>) => {
+    setTasks(tasks.map(t => t.id === id ? { ...t, ...updates } : t));
+  };
+
+  const deleteTask = (id: string) => {
+    setTasks(tasks.filter(t => t.id !== id));
+  };
+
   const activeTasks = tasks.filter(t => !t.completed).sort((a, b) => {
     const pMap: Record<Priority, number> = { high: 1, medium: 2, low: 3 };
     return pMap[a.priority] - pMap[b.priority];
@@ -67,11 +50,11 @@ export default function TaskManagement() {
       {activeTasks.length > 0 && (
         <div className="flex flex-col gap-3 mt-4">
           <h3 className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wider px-2">Active Tasks</h3>
-          <TaskList tasks={activeTasks} onToggle={toggleTaskCompleted} />
+          <TaskList tasks={activeTasks} onToggle={toggleTaskCompleted} onEdit={editTask} onDelete={deleteTask} />
         </div>
       )}
 
-      <CompletedTasksSection tasks={completedTasks} onToggle={toggleTaskCompleted} />
+      <CompletedTasksSection tasks={completedTasks} onToggle={toggleTaskCompleted} onEdit={editTask} onDelete={deleteTask} />
     </div>
   );
 }

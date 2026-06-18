@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ChevronDown } from 'lucide-react';
 import { Priority } from '../types';
 
 interface Props {
@@ -7,15 +8,15 @@ interface Props {
 
 export default function AddTaskForm({ onAdd }: Props) {
   const [title, setTitle] = useState('');
-  const [priority, setPriority] = useState<Priority>('medium');
+  const [priority, setPriority] = useState<Priority | ''>('');
   const [pomodoros, setPomodoros] = useState(1);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim()) return;
-    onAdd(title.trim(), priority, pomodoros);
+    if (!title.trim() || !priority) return;
+    onAdd(title.trim(), priority as Priority, pomodoros);
     setTitle('');
-    setPriority('medium');
+    setPriority('');
     setPomodoros(1);
   };
 
@@ -31,15 +32,19 @@ export default function AddTaskForm({ onAdd }: Props) {
       <div className="h-px w-full bg-[var(--line)]" />
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div className="flex flex-wrap items-center gap-3">
-          <select 
-            value={priority} 
-            onChange={(e) => setPriority(e.target.value as Priority)}
-            className="bg-[var(--surface)] text-[var(--text)] text-sm rounded-xl px-3 py-2 border border-[var(--line)] outline-none focus:border-[var(--accent-strong)] hover:border-[var(--muted)] transition-colors appearance-none font-medium cursor-pointer"
-          >
-            <option value="high">High Priority</option>
-            <option value="medium">Medium Priority</option>
-            <option value="low">Low Priority</option>
-          </select>
+          <div className="relative">
+            <select 
+              value={priority} 
+              onChange={(e) => setPriority(e.target.value as Priority)}
+              className="bg-[var(--surface)] text-[var(--text)] text-sm rounded-xl pl-3 pr-8 py-2 border border-[var(--line)] outline-none focus:border-[var(--accent-strong)] hover:border-[var(--muted)] transition-colors appearance-none font-medium cursor-pointer"
+            >
+              <option value="" disabled hidden>Choose Priority</option>
+              <option value="high">High Priority</option>
+              <option value="medium">Medium Priority</option>
+              <option value="low">Low Priority</option>
+            </select>
+            <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--muted)] pointer-events-none" />
+          </div>
           <div className="flex items-center gap-2 bg-[var(--surface)] rounded-xl px-3 py-2 border border-[var(--line)] focus-within:border-[var(--accent-strong)] hover:border-[var(--muted)] transition-colors">
             <span className="text-sm text-[var(--text)]">🍅 Est.</span>
             <input 
@@ -54,7 +59,7 @@ export default function AddTaskForm({ onAdd }: Props) {
         </div>
         <button 
           type="submit" 
-          disabled={!title.trim()}
+          disabled={!title.trim() || !priority}
           className="bg-[var(--text)] text-[var(--app)] px-6 py-2 rounded-xl font-medium text-sm hover:opacity-90 disabled:opacity-30 transition-all shadow-sm disabled:cursor-not-allowed"
         >
           Add Task
