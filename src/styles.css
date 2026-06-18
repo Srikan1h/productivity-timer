@@ -158,7 +158,6 @@ button {
   align-items: flex-start;
   width: 100%;
   max-width: 600px;
-  flex: 1;
 }
 
 .pomodoro-card,

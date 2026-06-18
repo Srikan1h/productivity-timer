@@ -81,24 +81,9 @@ export default function TaskItem({ task, onToggle, onEdit, onDelete }: Props) {
       </button>
       
       <div className="task-item-content">
-        <div className="task-item-header">
-          <span className="task-item-title">
-            {task.title}
-          </span>
-          <div className="task-item-right">
-            <span className={`task-priority-badge ${task.priority}`}>
-              {task.priority}
-            </span>
-            <div className="task-item-actions">
-              <button onClick={() => setIsEditing(true)} className="task-item-action-btn" title="Edit task">
-                <Edit2 size={14} />
-              </button>
-              <button onClick={() => onDelete(task.id)} className="task-item-action-btn danger" title="Delete task">
-                <Trash2 size={14} />
-              </button>
-            </div>
-          </div>
-        </div>
+        <span className="task-item-title">
+          {task.title}
+        </span>
         
         <div className="task-item-footer">
           <span className="emoji">🍅</span>
@@ -110,6 +95,20 @@ export default function TaskItem({ task, onToggle, onEdit, onDelete }: Props) {
               </span>
             ))}
           </div>
+        </div>
+      </div>
+
+      <div className="task-item-right">
+        <span className={`task-priority-badge ${task.priority}`}>
+          {task.priority}
+        </span>
+        <div className="task-item-actions">
+          <button onClick={() => setIsEditing(true)} className="task-item-action-btn" title="Edit task">
+            <Edit2 size={14} />
+          </button>
+          <button onClick={() => onDelete(task.id)} className="task-item-action-btn danger" title="Delete task">
+            <Trash2 size={14} />
+          </button>
         </div>
       </div>
     </div>
