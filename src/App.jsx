@@ -10,6 +10,7 @@ import {
   Target,
   Timer,
 } from 'lucide-react'
+import TaskManagement from './components/TaskManagement'
 
 const FOCUS_SECONDS = 30 * 60
 const BREAK_SECONDS = 10 * 60
@@ -389,6 +390,8 @@ function App() {
           </div>
         )}
       </section>
+
+      {view === 'pomodoro' && <TaskManagement />}
     </main>
   )
 }
