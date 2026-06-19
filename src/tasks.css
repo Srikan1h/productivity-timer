@@ -316,6 +316,10 @@
 .task-item.editing {
   border-color: var(--accent-strong);
 }
+.task-item.active-focus {
+  border: 1px solid var(--accent-strong);
+  background: var(--surface-hover);
+}
 
 .task-item-checkbox {
   margin-top: 2px;

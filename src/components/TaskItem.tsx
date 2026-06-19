@@ -7,9 +7,11 @@ interface Props {
   onToggle: (id: string) => void;
   onEdit: (id: string, updates: Partial<Task>) => void;
   onDelete: (id: string) => void;
+  isActive?: boolean;
+  onSelect?: (id: string) => void;
 }
 
-export default function TaskItem({ task, onToggle, onEdit, onDelete }: Props) {
+export default function TaskItem({ task, onToggle, onEdit, onDelete, isActive, onSelect }: Props) {
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(task.title);
   const [editPomodoros, setEditPomodoros] = useState(task.estimatedPomodoros);
@@ -74,7 +76,16 @@ export default function TaskItem({ task, onToggle, onEdit, onDelete }: Props) {
   }
 
   return (
-    <div className={`task-item ${task.completed ? 'completed' : ''}`}>
+    <div 
+      className={`task-item ${task.completed ? 'completed' : ''} ${isActive ? 'active-focus' : ''}`}
+      onClick={(e) => {
+        const target = e.target as HTMLElement;
+        if (!target.closest('button') && !target.closest('input')) {
+          onSelect?.(task.id);
+        }
+      }}
+      style={{ cursor: onSelect && !task.completed ? 'pointer' : 'default' }}
+    >
       <button 
         onClick={() => onToggle(task.id)}
         className="task-item-checkbox"

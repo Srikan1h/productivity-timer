@@ -11,6 +11,7 @@ import {
   Timer,
 } from 'lucide-react'
 import TaskManagement from './components/TaskManagement'
+import { Task } from './types'
 
 const FOCUS_SECONDS = 25 * 60
 const SHORT_BREAK_SECONDS = 5 * 60
@@ -110,6 +111,38 @@ function App() {
   const [pomodoroRunning, setPomodoroRunning] = useState(false)
   const modeRef = useRef<PomodoroMode>(pomodoroMode)
   const audioContextRef = useRef<AudioContext | null>(null)
+
+  const [tasks, setTasks] = useState<Task[]>(() => {
+    const saved = localStorage.getItem('kanth_tasks');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error('Failed to load tasks from local storage');
+      }
+    }
+    return [];
+  });
+  const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
+  const activeTaskIdRef = useRef(activeTaskId);
+  const [completionPromptTask, setCompletionPromptTask] = useState<Task | null>(null);
+
+  const getNextTask = (currentTasks: Task[]) => {
+    return currentTasks.filter(t => !t.completed).sort((a, b) => {
+      const pMap: Record<Priority, number> = { high: 1, medium: 2, low: 3 };
+      return pMap[a.priority] - pMap[b.priority];
+    })[0];
+  };
+
+  useEffect(() => {
+    localStorage.setItem('kanth_tasks', JSON.stringify(tasks));
+  }, [tasks]);
+
+  useEffect(() => {
+    activeTaskIdRef.current = activeTaskId;
+  }, [activeTaskId]);
+
+  const activeTask = useMemo(() => tasks.find(t => t.id === activeTaskId), [tasks, activeTaskId]);
 
   const pomodoroLabel = pomodoroMode === 'focus' ? 'Focus' : pomodoroMode === 'short-break' ? 'Short Break' : 'Long Break'
   const pomodoroTotal = pomodoroMode === 'focus' ? FOCUS_SECONDS : pomodoroMode === 'short-break' ? SHORT_BREAK_SECONDS : LONG_BREAK_SECONDS
@@ -254,6 +287,14 @@ function App() {
 
           const nextMode = (() => {
             if (modeRef.current === 'focus') {
+              if (activeTaskIdRef.current) {
+                setTasks(prev => prev.map(t => 
+                  t.id === activeTaskIdRef.current 
+                    ? { ...t, completedPomodoros: t.completedPomodoros + 1, remainingSeconds: undefined } 
+                    : t
+                ));
+              }
+
               const completed = sessionsRef.current + 1
               setFocusSessionsCompleted(completed)
               sessionsRef.current = completed
@@ -292,6 +333,14 @@ function App() {
 
   const skipPomodoro = () => {
     if (pomodoroMode === 'focus') {
+      if (activeTaskIdRef.current) {
+        setTasks(prev => prev.map(t => 
+          t.id === activeTaskIdRef.current 
+            ? { ...t, completedPomodoros: t.completedPomodoros + 1, remainingSeconds: undefined } 
+            : t
+        ));
+      }
+
       const completed = focusSessionsCompleted + 1
       setFocusSessionsCompleted(completed)
       sessionsRef.current = completed
@@ -301,12 +350,61 @@ function App() {
         switchPomodoroMode('short-break')
       }
     } else {
-      switchPomodoroMode('focus')
+      let targetTaskId = activeTaskIdRef.current;
+      const currentTask = tasks.find(t => t.id === targetTaskId);
+      if (!targetTaskId || currentTask?.completed) {
+        const nextTask = getNextTask(tasks);
+        if (nextTask) {
+           targetTaskId = nextTask.id;
+        } else {
+           targetTaskId = null;
+        }
+      }
+
+      if (targetTaskId) {
+        handleTaskSelect(targetTaskId);
+      } else {
+        switchPomodoroMode('focus');
+        setPomodoroRunning(true);
+      }
     }
   }
 
+  const handleTaskSelect = (id: string | null) => {
+    unlockAudio();
+    if (pomodoroMode === 'focus' && activeTaskIdRef.current && activeTaskIdRef.current !== id) {
+      setTasks(prev => prev.map(t => 
+        t.id === activeTaskIdRef.current 
+          ? { ...t, remainingSeconds: pomodoroSeconds } 
+          : t
+      ));
+    }
+
+    if (!id) {
+      setActiveTaskId(null);
+      setPomodoroRunning(false);
+      return;
+    }
+
+    const newTask = tasks.find(t => t.id === id);
+    if (!newTask) return;
+
+    setActiveTaskId(id);
+    setPomodoroMode('focus');
+    modeRef.current = 'focus';
+    setPomodoroSeconds(newTask.remainingSeconds !== undefined ? newTask.remainingSeconds : FOCUS_SECONDS);
+    setPomodoroRunning(true);
+  };
+
   const togglePomodoro = () => {
     unlockAudio()
+    if (!pomodoroRunning && pomodoroMode === 'focus' && !activeTaskId) {
+      const nextTask = getNextTask(tasks);
+      if (nextTask) {
+        handleTaskSelect(nextTask.id);
+        return;
+      }
+    }
     setPomodoroRunning((running) => !running)
   }
 
@@ -353,6 +451,30 @@ function App() {
       <section className="timer-shell" aria-live="polite">
         {view === 'pomodoro' ? (
           <div className="pomodoro-card">
+            {completionPromptTask && (
+              <div className="completion-prompt-overlay">
+                <div className="completion-prompt">
+                  <h3>Task Completed!</h3>
+                  <p>You finished <strong>{completionPromptTask.title}</strong> before the timer ended.</p>
+                  <div className="completion-prompt-actions">
+                    <button className="primary" onClick={() => {
+                      setCompletionPromptTask(null);
+                      const nextTask = getNextTask(tasks);
+                      if (nextTask) {
+                        handleTaskSelect(nextTask.id);
+                      } else {
+                        setPomodoroRunning(false);
+                      }
+                    }}>Continue with next task</button>
+                    <button className="secondary" onClick={() => {
+                      setCompletionPromptTask(null);
+                      switchPomodoroMode('short-break');
+                      setPomodoroRunning(true);
+                    }}>Take a short break</button>
+                  </div>
+                </div>
+              </div>
+            )}
             <div className="phase-tabs" aria-label="Pomodoro phase">
               <button
                 className={pomodoroMode === 'focus' ? 'active' : ''}
@@ -376,6 +498,18 @@ function App() {
                 Long Break
               </button>
             </div>
+
+            {activeTask && (
+              <div className="active-task-display">
+                <div className="active-task-title">Currently focusing on: <span>{activeTask.title}</span></div>
+                <div className="active-task-progress">
+                  🍅 {activeTask.completedPomodoros}/{activeTask.estimatedPomodoros}
+                  {activeTask.completedPomodoros >= activeTask.estimatedPomodoros && (
+                    <span className="suggested-completion"> ✓ Suggested completion</span>
+                  )}
+                </div>
+              </div>
+            )}
 
             <div className="pomodoro-time">
               <TimeDisplay totalMs={pomodoroSeconds * 1000} isPomodoro />
@@ -457,7 +591,21 @@ function App() {
         )}
       </section>
 
-      {view === 'pomodoro' && <TaskManagement />}
+      {view === 'pomodoro' && (
+        <TaskManagement 
+          tasks={tasks}
+          setTasks={setTasks}
+          activeTaskId={activeTaskId}
+          setActiveTaskId={setActiveTaskId}
+          onSelectTask={handleTaskSelect}
+          onClearActiveTask={() => handleTaskSelect(null)}
+          onTaskCompleted={(task) => {
+            setPomodoroRunning(false);
+            setCompletionPromptTask(task);
+            setActiveTaskId(null);
+          }}
+        />
+      )}
     </main>
   )
 }

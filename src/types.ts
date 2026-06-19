@@ -7,4 +7,5 @@ export type Task = {
   estimatedPomodoros: number;
   completedPomodoros: number;
   completed: boolean;
+  remainingSeconds?: number;
 };

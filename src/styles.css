@@ -170,6 +170,8 @@ button {
   background: var(--surface-soft);
   padding: 40px 32px;
   gap: 32px;
+  position: relative;
+  overflow: hidden;
 }
 
 .bi-clock-fill {
@@ -198,6 +200,108 @@ button {
 
 .phase-tabs button.active {
   background: color-mix(in srgb, var(--text) 12%, transparent);
+}
+
+.active-task-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: color-mix(in srgb, var(--surface-hover) 30%, transparent);
+  padding: 12px 24px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  margin-bottom: -16px;
+}
+
+.active-task-title {
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+.active-task-title span {
+  color: var(--text);
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.completion-prompt-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  padding: 24px;
+}
+.completion-prompt {
+  background: var(--surface-hover);
+  border: 1px solid var(--line);
+  padding: 24px;
+  border-radius: 12px;
+  text-align: center;
+  max-width: 320px;
+}
+.completion-prompt h3 {
+  margin: 0 0 12px 0;
+  color: var(--text);
+  font-size: 1.125rem;
+}
+.completion-prompt p {
+  margin: 0 0 24px 0;
+  color: var(--muted);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+.completion-prompt strong {
+  color: var(--text);
+  text-transform: capitalize;
+}
+.completion-prompt-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.completion-prompt-actions button {
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+.completion-prompt-actions button.primary {
+  background: var(--text);
+  color: var(--surface);
+}
+.completion-prompt-actions button.primary:hover {
+  opacity: 0.9;
+}
+.completion-prompt-actions button.secondary {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--line);
+}
+.completion-prompt-actions button.secondary:hover {
+  color: var(--text);
+  border-color: var(--muted);
+}
+.active-task-progress {
+  font-size: 0.875rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.suggested-completion {
+  color: #22c55e;
+  font-weight: 600;
+  font-size: 0.75rem;
 }
 
 .time-display {

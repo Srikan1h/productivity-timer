@@ -53,22 +53,17 @@ function TaskMenu({ onClearAll, onClearCompleted }: { onClearAll: () => void, on
   );
 }
 
-export default function TaskManagement() {
-  const [tasks, setTasks] = useState<Task[]>(() => {
-    const saved = localStorage.getItem('kanth_tasks');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        console.error('Failed to load tasks from local storage');
-      }
-    }
-    return [];
-  });
+interface TaskManagementProps {
+  tasks: Task[];
+  setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
+  activeTaskId: string | null;
+  setActiveTaskId: (id: string | null) => void;
+  onTaskCompleted: (task: Task) => void;
+  onSelectTask: (id: string) => void;
+  onClearActiveTask: () => void;
+}
 
-  useEffect(() => {
-    localStorage.setItem('kanth_tasks', JSON.stringify(tasks));
-  }, [tasks]);
+export default function TaskManagement({ tasks, setTasks, activeTaskId, setActiveTaskId, onTaskCompleted, onSelectTask, onClearActiveTask }: TaskManagementProps) {
 
   const addTask = (title: string, priority: Priority, estimatedPomodoros: number) => {
     const newTask: Task = {
@@ -83,7 +78,17 @@ export default function TaskManagement() {
   };
 
   const toggleTaskCompleted = (id: string) => {
-    setTasks(tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
+    const task = tasks.find(t => t.id === id);
+    if (!task) return;
+    
+    const isCompleting = !task.completed;
+    setTasks(tasks.map(t => t.id === id ? { ...t, completed: isCompleting, remainingSeconds: isCompleting ? undefined : t.remainingSeconds } : t));
+    
+    if (isCompleting && activeTaskId === id) {
+      onTaskCompleted(task);
+    } else if (activeTaskId === id) {
+      setActiveTaskId(null);
+    }
   };
 
   const editTask = (id: string, updates: Partial<Task>) => {
@@ -91,15 +96,18 @@ export default function TaskManagement() {
   };
 
   const deleteTask = (id: string) => {
+    if (activeTaskId === id) onClearActiveTask();
     setTasks(tasks.filter(t => t.id !== id));
   };
 
   const clearAllTasks = () => {
+    if (activeTaskId) onClearActiveTask();
     setTasks([]);
   };
 
   const clearCompletedTasks = () => {
     setTasks(tasks.filter(t => !t.completed));
+    // Assuming active task is not completed, no need to reset
   };
 
   const activeTasks = tasks.filter(t => !t.completed).sort((a, b) => {
@@ -122,7 +130,14 @@ export default function TaskManagement() {
       {activeTasks.length > 0 && (
         <div className="task-section">
           <h3 className="task-section-title">Active Tasks</h3>
-          <TaskList tasks={activeTasks} onToggle={toggleTaskCompleted} onEdit={editTask} onDelete={deleteTask} />
+          <TaskList 
+            tasks={activeTasks} 
+            onToggle={toggleTaskCompleted} 
+            onEdit={editTask} 
+            onDelete={deleteTask}
+            activeTaskId={activeTaskId}
+            onSelectTask={onSelectTask}
+          />
         </div>
       )}
 
