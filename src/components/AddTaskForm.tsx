@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, Info } from 'lucide-react';
 import { Priority } from '../types';
 
 interface Props {
@@ -38,14 +38,20 @@ export default function AddTaskForm({ onAdd }: Props) {
               onChange={(e) => setPriority(e.target.value as Priority)}
               className="add-task-select"
             >
-              <option value="" disabled hidden>Choose Priority</option>
-              <option value="high">High Priority</option>
-              <option value="medium">Medium Priority</option>
-              <option value="low">Low Priority</option>
+              <option value="" disabled hidden>Priority</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
             </select>
             <ChevronDown className="add-task-select-icon" size={16} strokeWidth={2.5} />
           </div>
           <div className="add-task-pomodoros">
+            <div className="pomodoro-tooltip-wrapper">
+              <Info size={14} className="pomodoro-info-icon" />
+              <div className="pomodoro-tooltip">
+                Estimated Pomodoros: Number of 25-minute focus sessions needed for this task.
+              </div>
+            </div>
             <span>🍅 Est.</span>
             <input 
               type="number" 

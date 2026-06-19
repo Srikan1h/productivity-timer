@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Task } from '../types';
-import { Edit2, Trash2, Check, X, ChevronUp, ChevronDown } from 'lucide-react';
+import { Edit2, Trash2, Check, X, ChevronUp, ChevronDown, Info } from 'lucide-react';
 
 interface Props {
   task: Task;
@@ -41,6 +41,12 @@ export default function TaskItem({ task, onToggle, onEdit, onDelete }: Props) {
             autoFocus
           />
           <div className="task-edit-pomodoros">
+            <div className="pomodoro-tooltip-wrapper">
+              <Info size={14} className="pomodoro-info-icon" />
+              <div className="pomodoro-tooltip">
+                Estimated Pomodoros: Number of 25-minute focus sessions needed for this task.
+              </div>
+            </div>
             <span>🍅 Est.</span>
             <input 
               type="number" 

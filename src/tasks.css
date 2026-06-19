@@ -131,9 +131,9 @@
 }
 .add-task-left-controls {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 }
 .add-task-select-wrapper {
   position: relative;
@@ -162,6 +162,63 @@
   color: var(--muted);
   pointer-events: none;
 }
+.pomodoro-tooltip-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pomodoro-info-icon {
+  color: var(--muted);
+  cursor: help;
+  transition: color 0.2s ease;
+  margin-right: 8px;
+}
+
+.pomodoro-info-icon:hover {
+  color: var(--text);
+}
+
+.pomodoro-tooltip {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-4px);
+  background: var(--surface-hover);
+  color: var(--text);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  width: max-content;
+  max-width: 200px;
+  text-align: center;
+  line-height: 1.4;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.pomodoro-tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 4px;
+  border-style: solid;
+  border-color: transparent transparent var(--surface-hover) transparent;
+}
+
+.pomodoro-tooltip-wrapper:hover .pomodoro-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
 .add-task-pomodoros {
   display: flex;
   align-items: center;
