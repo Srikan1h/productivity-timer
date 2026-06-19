@@ -187,11 +187,13 @@ button {
 .phase-tabs button {
   min-width: 96px;
   min-height: 36px;
+  padding: 0 12px;
   border-radius: 8px;
   background: transparent;
   color: var(--text);
   cursor: pointer;
   font-weight: 500;
+  font-size: 0.875rem;
 }
 
 .phase-tabs button.active {
@@ -254,6 +256,31 @@ button {
   border-radius: inherit;
   background: var(--accent-strong);
   content: "";
+}
+
+.cycle-indicator {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.cycle-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--line);
+  transition: all 0.3s ease;
+}
+
+.cycle-dot.completed {
+  background: var(--accent-strong);
+}
+
+.cycle-dot.active {
+  background: var(--accent-strong);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-strong) 20%, transparent);
 }
 
 .pomodoro-controls,

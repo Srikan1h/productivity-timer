@@ -12,8 +12,11 @@ import {
 } from 'lucide-react'
 import TaskManagement from './components/TaskManagement'
 
-const FOCUS_SECONDS = 30 * 60
-const BREAK_SECONDS = 10 * 60
+const FOCUS_SECONDS = 25 * 60
+const SHORT_BREAK_SECONDS = 5 * 60
+const LONG_BREAK_SECONDS = 20 * 60
+
+type PomodoroMode = 'focus' | 'short-break' | 'long-break'
 
 interface TimeDisplayProps {
   totalMs: number
@@ -100,14 +103,16 @@ function App() {
   const [theme, setTheme] = useState<'dark' | 'light'>('dark')
   const [stopwatchMs, setStopwatchMs] = useState(0)
   const [stopwatchRunning, setStopwatchRunning] = useState(false)
-  const [pomodoroMode, setPomodoroMode] = useState<'focus' | 'break'>('focus')
+  const [pomodoroMode, setPomodoroMode] = useState<PomodoroMode>('focus')
+  const [focusSessionsCompleted, setFocusSessionsCompleted] = useState(0)
+  const sessionsRef = useRef(focusSessionsCompleted)
   const [pomodoroSeconds, setPomodoroSeconds] = useState(FOCUS_SECONDS)
   const [pomodoroRunning, setPomodoroRunning] = useState(false)
-  const modeRef = useRef<'focus' | 'break'>(pomodoroMode)
+  const modeRef = useRef<PomodoroMode>(pomodoroMode)
   const audioContextRef = useRef<AudioContext | null>(null)
 
-  const pomodoroLabel = pomodoroMode === 'focus' ? 'Focus' : 'Break'
-  const pomodoroTotal = pomodoroMode === 'focus' ? FOCUS_SECONDS : BREAK_SECONDS
+  const pomodoroLabel = pomodoroMode === 'focus' ? 'Focus' : pomodoroMode === 'short-break' ? 'Short Break' : 'Long Break'
+  const pomodoroTotal = pomodoroMode === 'focus' ? FOCUS_SECONDS : pomodoroMode === 'short-break' ? SHORT_BREAK_SECONDS : LONG_BREAK_SECONDS
   const stopwatchProgress = ((stopwatchMs / 1000) % 60) / 60
   const pomodoroProgress = 1 - pomodoroSeconds / pomodoroTotal
   const ringRadius = 150
@@ -247,10 +252,23 @@ function App() {
           playBell()
           setTimeout(() => setPomodoroRunning(false), 0)
 
-          const nextMode = modeRef.current === 'focus' ? 'break' : 'focus'
+          const nextMode = (() => {
+            if (modeRef.current === 'focus') {
+              const completed = sessionsRef.current + 1
+              setFocusSessionsCompleted(completed)
+              sessionsRef.current = completed
+              if (completed > 0 && completed % 4 === 0) {
+                return 'long-break'
+              }
+              return 'short-break'
+            } else {
+              return 'focus'
+            }
+          })()
+
           modeRef.current = nextMode
           setPomodoroMode(nextMode)
-          return nextMode === 'focus' ? FOCUS_SECONDS : BREAK_SECONDS
+          return nextMode === 'focus' ? FOCUS_SECONDS : nextMode === 'short-break' ? SHORT_BREAK_SECONDS : LONG_BREAK_SECONDS
         })
       }, 1000)
     }
@@ -258,22 +276,33 @@ function App() {
     return () => window.clearInterval(intervalId)
   }, [pomodoroRunning])
 
-  const switchPomodoroMode = (nextMode: 'focus' | 'break') => {
+  const switchPomodoroMode = (nextMode: PomodoroMode) => {
     unlockAudio()
     setPomodoroMode(nextMode)
     modeRef.current = nextMode
-    setPomodoroSeconds(nextMode === 'focus' ? FOCUS_SECONDS : BREAK_SECONDS)
+    setPomodoroSeconds(nextMode === 'focus' ? FOCUS_SECONDS : nextMode === 'short-break' ? SHORT_BREAK_SECONDS : LONG_BREAK_SECONDS)
     setPomodoroRunning(false)
   }
 
   const restartPomodoro = () => {
     unlockAudio()
-    setPomodoroSeconds(pomodoroMode === 'focus' ? FOCUS_SECONDS : BREAK_SECONDS)
+    setPomodoroSeconds(pomodoroMode === 'focus' ? FOCUS_SECONDS : pomodoroMode === 'short-break' ? SHORT_BREAK_SECONDS : LONG_BREAK_SECONDS)
     setPomodoroRunning(false)
   }
 
   const skipPomodoro = () => {
-    switchPomodoroMode(pomodoroMode === 'focus' ? 'break' : 'focus')
+    if (pomodoroMode === 'focus') {
+      const completed = focusSessionsCompleted + 1
+      setFocusSessionsCompleted(completed)
+      sessionsRef.current = completed
+      if (completed % 4 === 0) {
+        switchPomodoroMode('long-break')
+      } else {
+        switchPomodoroMode('short-break')
+      }
+    } else {
+      switchPomodoroMode('focus')
+    }
   }
 
   const togglePomodoro = () => {
@@ -333,11 +362,18 @@ function App() {
                 Focus
               </button>
               <button
-                className={pomodoroMode === 'break' ? 'active' : ''}
+                className={pomodoroMode === 'short-break' ? 'active' : ''}
                 type="button"
-                onClick={() => switchPomodoroMode('break')}
+                onClick={() => switchPomodoroMode('short-break')}
               >
-                Break
+                Short Break
+              </button>
+              <button
+                className={pomodoroMode === 'long-break' ? 'active' : ''}
+                type="button"
+                onClick={() => switchPomodoroMode('long-break')}
+              >
+                Long Break
               </button>
             </div>
 
@@ -350,6 +386,20 @@ function App() {
               aria-hidden="true"
               style={{ '--progress': `${pomodoroProgress * 100}%` }}
             />
+
+            <div className="cycle-indicator" aria-label={`Cycle progress: ${pomodoroMode === 'long-break' ? 4 : (focusSessionsCompleted % 4)} of 4`}>
+              {[1, 2, 3, 4].map((step) => {
+                const cyclePos = focusSessionsCompleted % 4;
+                const isCompleted = pomodoroMode === 'long-break' || cyclePos >= step;
+                const isActive = pomodoroMode === 'focus' && cyclePos + 1 === step;
+                return (
+                  <div
+                    key={step}
+                    className={`cycle-dot ${isCompleted ? 'completed' : ''} ${isActive ? 'active' : ''}`}
+                  />
+                );
+              })}
+            </div>
 
             <div className="pomodoro-controls">
               <ControlButton label={pomodoroRunning ? 'Pause' : 'Start'} icon={pomodoroRunning ? <Pause size={18} /> : <Play size={18} />} onClick={togglePomodoro}>
