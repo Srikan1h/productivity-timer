@@ -126,6 +126,7 @@ function App() {
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
   const activeTaskIdRef = useRef(activeTaskId);
   const [completionPromptTask, setCompletionPromptTask] = useState<Task | null>(null);
+  const [autoStartNextTask, setAutoStartNextTask] = useState(false);
 
   const getNextTask = (currentTasks: Task[]) => {
     return currentTasks.filter(t => !t.completed).sort((a, b) => {
@@ -137,6 +138,16 @@ function App() {
   useEffect(() => {
     localStorage.setItem('kanth_tasks', JSON.stringify(tasks));
   }, [tasks]);
+
+  useEffect(() => {
+    if (autoStartNextTask) {
+      const nextTask = getNextTask(tasks);
+      if (nextTask) {
+        setAutoStartNextTask(false);
+        handleTaskSelect(nextTask.id);
+      }
+    }
+  }, [tasks, autoStartNextTask]);
 
   useEffect(() => {
     activeTaskIdRef.current = activeTaskId;
@@ -451,30 +462,40 @@ function App() {
       <section className="timer-shell" aria-live="polite">
         {view === 'pomodoro' ? (
           <div className="pomodoro-card">
-            {completionPromptTask && (
-              <div className="completion-prompt-overlay">
-                <div className="completion-prompt">
-                  <h3>Task Completed!</h3>
-                  <p>You finished <strong>{completionPromptTask.title}</strong> before the timer ended.</p>
-                  <div className="completion-prompt-actions">
-                    <button className="primary" onClick={() => {
-                      setCompletionPromptTask(null);
-                      const nextTask = getNextTask(tasks);
-                      if (nextTask) {
-                        handleTaskSelect(nextTask.id);
-                      } else {
-                        setPomodoroRunning(false);
-                      }
-                    }}>Continue with next task</button>
-                    <button className="secondary" onClick={() => {
-                      setCompletionPromptTask(null);
-                      switchPomodoroMode('short-break');
-                      setPomodoroRunning(true);
-                    }}>Take a short break</button>
+            {completionPromptTask && (() => {
+              const nextTask = getNextTask(tasks);
+              const isLastTask = !nextTask;
+
+              return (
+                <div className="completion-prompt-overlay">
+                  <div className="completion-prompt">
+                    <h3>Task Completed!</h3>
+                    <p>You finished <strong>{completionPromptTask.title}</strong> before the timer ended.</p>
+                    <div className="completion-prompt-actions">
+                      {isLastTask ? (
+                        <button className="primary" onClick={() => {
+                          setCompletionPromptTask(null);
+                          setAutoStartNextTask(true);
+                          setTimeout(() => {
+                            document.querySelector<HTMLInputElement>('.add-task-input')?.focus();
+                          }, 100);
+                        }}>Add Next Task</button>
+                      ) : (
+                        <button className="primary" onClick={() => {
+                          setCompletionPromptTask(null);
+                          if (nextTask) handleTaskSelect(nextTask.id);
+                        }}>Continue with next task</button>
+                      )}
+                      <button className="secondary" onClick={() => {
+                        setCompletionPromptTask(null);
+                        switchPomodoroMode('short-break');
+                        setPomodoroRunning(true);
+                      }}>Take a short break</button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
             <div className="phase-tabs" aria-label="Pomodoro phase">
               <button
                 className={pomodoroMode === 'focus' ? 'active' : ''}
